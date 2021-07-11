@@ -118,7 +118,6 @@ class DBHelper {
 
   static Future<void> initializeSeting() async {
     var initSettings = {'currency': '\$'};
-
     await insert(settings, initSettings);
   }
 

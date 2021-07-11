@@ -26,13 +26,13 @@ class _CurrencySelectionState extends State<CurrencySelection> {
   Widget build(BuildContext context) {
     String defaultCurrency = {"symbol": "\$", "name": "US - Dollar"}.toString();
     String settingsCurrency = defaultCurrency;
-    //Provider.of<Settings>(context, listen: false).findByName('currency'); //
-    print('------------');
-    print(settingsCurrency);
-    if (settingsCurrency.isEmpty) {
-      settingsCurrency = defaultCurrency;
-    }
-    print('------------');
+    // //Provider.of<Settings>(context, listen: false).findByName('currency'); //
+    // print('------------');
+    // print(settingsCurrency);
+    // if (settingsCurrency.isEmpty) {
+    //   settingsCurrency = defaultCurrency;
+    // }
+    // print('------------');
     return FutureBuilder(
         future: Provider.of<Currencies>(context, listen: false).getCurrencies(),
         builder: (ctx, snapshot) =>
@@ -62,10 +62,8 @@ class _CurrencySelectionState extends State<CurrencySelection> {
                         items: <Currency>[...currencies.items]
                             .map<DropdownMenuItem<String>>((Currency value) {
                           return DropdownMenuItem<String>(
-                            value: json.encode({
-                              'symbol': value.symbol,
-                              'name': value.name
-                            }.toString()),
+                            value: {'symbol': value.symbol, 'name': value.name}
+                                .toString(),
                             child: Text(value.name),
                           );
                         }).toList(),
