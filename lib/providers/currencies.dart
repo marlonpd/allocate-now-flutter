@@ -13,22 +13,23 @@ class Currencies with ChangeNotifier {
   Future<void> getCurrencies() async {
     var jsonText = await rootBundle.loadString('assets/json/currencies.json');
 
-    // try {
-    //   (json.decode(jsonText)).forEach((entitlement) {
-    //     log(entitlement.toString());
-    //   });
-    //   // (json.decode(jsonText)).map((c) {
-    //   //   log(c);
-    //   //   //Currency.fromMap(c) as Currency
-    //   //   return t;
-    //   // }).toList();
-    // } catch (e) {
-    //   print(e);
-    // }
-    _items = [
-      Currency("\$", "US - Dollar"),
-      Currency("P", "PH - Peso"),
-    ];
+    //log(jsonText);
+
+    try {
+      _items = (json.decode(jsonText)).map((c) {
+        // log(c.toString());
+        return Currency(c['symbol'], c['code']) as Currency;
+      }).toList();
+      log('Fetching currencies');
+      log(_items.toString());
+    } catch (e) {
+      print('watch the pak');
+      print(e);
+    }
+    // _items = [
+    //   Currency("\$", "US - Dollar"),
+    //   Currency("P", "PH - Peso"),
+    // ];
     notifyListeners();
   }
 

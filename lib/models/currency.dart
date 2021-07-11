@@ -1,11 +1,11 @@
 class Currency {
   String symbol = '';
-  String name = '';
+  String code = '';
 
-  Currency(this.symbol, this.name);
+  Currency(this.symbol, this.code);
 
   Currency.fromMap(Map<String, dynamic?> val) {
     this.symbol = val['symbol'];
-    this.name = val['name'];
+    this.code = val['name'];
   }
 }

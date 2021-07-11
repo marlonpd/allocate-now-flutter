@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:allocate_now/helpers/db_helper.dart';
 import 'package:allocate_now/models/setting.dart';
@@ -25,11 +26,6 @@ class Settings with ChangeNotifier {
   String findByName(String name) {
     var setting = _settings.firstWhereOrNull((s) => s.name == name);
 
-    // print('findByName');
-
-    // print(_settings);
-    // print(setting.toString());
-
     if (setting == null) {
       return '';
     }
@@ -44,15 +40,13 @@ class Settings with ChangeNotifier {
       return '\$';
     }
 
-    print('setting.value');
-    print(setting.value);
+    var splitted = setting.value.split('_');
 
-    //final currency = json.decode(setting.value);
+    if (splitted.length > 0) {
+      return splitted[1];
+    }
 
-    print('currencySymbol');
-    // print(currency.runtimeType);
-    // print(currency['symbol']);
-    return 'P';
+    return '\$';
   }
 
   void updateSettings(String name, String value) async {

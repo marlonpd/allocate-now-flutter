@@ -18,17 +18,18 @@ class _CurrencySelectionState extends State<CurrencySelection> {
   void setCurrency(String settingsValue) {
     setState(() {
       Provider.of<Settings>(context, listen: false)
-          .updateSettings('currency', json.encode(settingsValue));
+          .updateSettings('currency', settingsValue);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    String defaultCurrency = {"symbol": "\$", "name": "US - Dollar"}.toString();
-    String settingsCurrency = defaultCurrency;
+    String defaultCurrency =
+        Provider.of<Settings>(context, listen: false).findByName('currency');
+    //String settingsCurrency = defaultCurrency;
     // //Provider.of<Settings>(context, listen: false).findByName('currency'); //
-    // print('------------');
-    // print(settingsCurrency);
+    print('------defaultCurrency------');
+    print(defaultCurrency);
     // if (settingsCurrency.isEmpty) {
     //   settingsCurrency = defaultCurrency;
     // }
@@ -44,7 +45,7 @@ class _CurrencySelectionState extends State<CurrencySelection> {
                     child: Center(child: Text('Fetching')),
                     builder: (ctx, currencies, _ch) {
                       return DropdownButton<String>(
-                        value: settingsCurrency,
+                        value: defaultCurrency,
                         icon: const Icon(Icons.arrow_downward),
                         iconSize: 24,
                         elevation: 16,
@@ -55,16 +56,15 @@ class _CurrencySelectionState extends State<CurrencySelection> {
                         ),
                         onChanged: (String? newValue) {
                           setState(() {
-                            settingsCurrency = newValue!;
-                            setCurrency(settingsCurrency);
+                            defaultCurrency = newValue!;
+                            setCurrency(defaultCurrency);
                           });
                         },
                         items: <Currency>[...currencies.items]
                             .map<DropdownMenuItem<String>>((Currency value) {
                           return DropdownMenuItem<String>(
-                            value: {'symbol': value.symbol, 'name': value.name}
-                                .toString(),
-                            child: Text(value.name),
+                            value: '${value.code}_${value.symbol}',
+                            child: Text(value.code),
                           );
                         }).toList(),
                       );
