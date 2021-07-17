@@ -127,8 +127,8 @@ class BudgetsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     Provider.of<Settings>(context, listen: false).fetchAndSetSettings();
 
-    String _currencySymbol =
-        Provider.of<Settings>(context, listen: false).currencySymbol;
+    // String _currencySymbol =
+    //     Provider.of<Settings>(context, listen: false).currencySymbol;
     // final _settings = Provider.of<Settings>(context, listen: false).settings;
     // print(_settings.length);
     // print(json.encode(_settings));

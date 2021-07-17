@@ -10,6 +10,7 @@ class Settings with ChangeNotifier {
   List<Setting> _settings = [];
   //String currency = '';
   static const CURRENCY = 'currency';
+  static const EMAIL = 'email';
   Future<void> fetchAndSetSettings() async {
     var dataList = await DBHelper.getData('settings');
 
@@ -34,13 +35,14 @@ class Settings with ChangeNotifier {
   }
 
   String get currencySymbol {
-    var setting = _settings.firstWhereOrNull((s) => s.name == CURRENCY);
+    var setting = findByName(CURRENCY);
+    // _settings.firstWhereOrNull((s) => s.name == CURRENCY);
 
-    if (setting == null) {
-      return '\$';
-    }
+    // if (setting == null) {
+    //   return '\$';
+    // }
 
-    var splitted = setting.value.split('_');
+    var splitted = setting.split('_');
 
     if (splitted.length > 0) {
       return splitted[1];
@@ -51,15 +53,6 @@ class Settings with ChangeNotifier {
 
   void updateSettings(String name, String value) async {
     final ndx = _settings.indexWhere((item) => item.name == name);
-
-    // _settings
-    //     .firstWhere((item) => item["name"] == name)
-    //     .update('value', (v) => value);
-    // if (ndx >= 0) {
-    //   _settings[ndx] = {name: name, value: value};
-    // } else {
-    //   _settings.add({name: name, value: value});
-    // }
 
     if (ndx >= 0) {
       _settings[ndx].value = value;
