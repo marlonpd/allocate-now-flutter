@@ -1,27 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:allocate_now/models/currency.dart';
-
-import '../providers/currencies.dart';
 import '../providers/settings.dart';
 
-class UserEmailText extends StatefulWidget {
-  const UserEmailText({Key? key}) : super(key: key);
-
-  @override
-  _UserEmailTextState createState() => _UserEmailTextState();
-}
-
-class _UserEmailTextState extends State<UserEmailText> {
+class UserEmailText extends StatelessWidget {
   final _emailController = TextEditingController();
   String _userEmail = '';
-  int _counter = 0;
 
   Future<dynamic> _startSetEmail(BuildContext ctx) {
-    setState(() {});
-    _userEmail = 'test';
-    _counter++;
     return showModalBottomSheet<String>(
         context: ctx,
         builder: (_) {
@@ -52,11 +38,6 @@ class _UserEmailTextState extends State<UserEmailText> {
   void _saveEmail(ctx) {
     if (_emailController.text.isEmpty) return;
 
-    // setState(() {
-    //   _userEmail = _emailController.text;
-    // });
-
-    // setState(() {});
     Provider.of<Settings>(ctx, listen: false)
         .updateSettings('email', _emailController.text);
     Navigator.of(ctx).pop(_userEmail);
@@ -64,13 +45,10 @@ class _UserEmailTextState extends State<UserEmailText> {
 
   @override
   Widget build(BuildContext context) {
-    _userEmail =
-        Provider.of<Settings>(context, listen: true).findByName('email');
-
-    return GestureDetector(
-        onDoubleTap: () async {
-          await _startSetEmail(context);
-        },
-        child: Text(_userEmail));
+    return GestureDetector(onDoubleTap: () async {
+      await _startSetEmail(context);
+    }, child: Consumer<Settings>(builder: (_, settings, __) {
+      return Text(settings.findByName('email'));
+    }));
   }
 }
