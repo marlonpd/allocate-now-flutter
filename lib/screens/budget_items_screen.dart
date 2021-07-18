@@ -1,4 +1,5 @@
 import 'package:allocate_now/models/budget_item.dart';
+import 'package:allocate_now/widgets/add_new_budget_item_form.dart';
 import 'package:allocate_now/widgets/budget_summary.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -10,21 +11,16 @@ import '../providers/budget_items.dart';
 import '../providers/settings.dart';
 import '../helpers/constants.dart';
 
-class BudgetItemsScreen extends StatefulWidget {
+class BudgetItemsScreen extends StatelessWidget {
   static const routeName = '/budget-item';
 
-  @override
-  _BudgetItemsScreenState createState() => _BudgetItemsScreenState();
-}
-
-class _BudgetItemsScreenState extends State<BudgetItemsScreen> {
   final _nameController = TextEditingController();
   final _unitCountController = TextEditingController();
   final _amountController = TextEditingController();
   late final DateTime _dateTime;
   var budgetId = '';
 
-  void _saveBudgetItem(EntryType etype) {
+  void _saveBudgetItem(BuildContext context, EntryType etype) {
     if (_nameController.text.isEmpty || _amountController.text.isEmpty) return;
 
     final double _unitCount = _unitCountController.text.isEmpty
@@ -44,7 +40,7 @@ class _BudgetItemsScreenState extends State<BudgetItemsScreen> {
     Navigator.of(context).pop();
   }
 
-  void _updateBudgetItem(BudgetItem budgetItem) {
+  void _updateBudgetItem(BuildContext context, BudgetItem budgetItem) {
     if (_nameController.text.isEmpty ||
         _unitCountController.text.isEmpty ||
         _amountController.text.isEmpty) return;
@@ -68,7 +64,7 @@ class _BudgetItemsScreenState extends State<BudgetItemsScreen> {
         .toggleSetPaidBudgetItem(budgetItemId, isPaid);
   }
 
-  void _startAddNewExpenses() {
+  void _startAddNewExpenses(BuildContext context) {
     _nameController.text = '';
     _unitCountController.text = '';
     _amountController.text = '';
@@ -99,7 +95,7 @@ class _BudgetItemsScreenState extends State<BudgetItemsScreen> {
                   ),
                   ElevatedButton.icon(
                       onPressed: () {
-                        _saveBudgetItem(EntryType.expenses);
+                        _saveBudgetItem(context, EntryType.expenses);
                       },
                       icon: Icon(Icons.add),
                       label: Text('Add Expenses'))
@@ -110,7 +106,7 @@ class _BudgetItemsScreenState extends State<BudgetItemsScreen> {
         });
   }
 
-  void _startAddNewBudget() {
+  void _startAddNewBudget(BuildContext context) {
     _nameController.text = '';
     _unitCountController.text = '';
     _amountController.text = '';
@@ -136,7 +132,7 @@ class _BudgetItemsScreenState extends State<BudgetItemsScreen> {
                   ),
                   RaisedButton.icon(
                       onPressed: () {
-                        _saveBudgetItem(EntryType.income);
+                        _saveBudgetItem(context, EntryType.income);
                       },
                       icon: Icon(Icons.add),
                       label: Text('Add Budget'))
@@ -161,7 +157,7 @@ class _BudgetItemsScreenState extends State<BudgetItemsScreen> {
     });
   }
 
-  void _startEditBudgetItem(BudgetItem budgetItem) {
+  void _startEditBudgetItem(BuildContext context, BudgetItem budgetItem) {
     _nameController.text = budgetItem.name;
     _unitCountController.text = budgetItem.unitCount.toString();
     _amountController.text = budgetItem.amount.toString();
@@ -192,7 +188,7 @@ class _BudgetItemsScreenState extends State<BudgetItemsScreen> {
                   ),
                   RaisedButton.icon(
                       onPressed: () {
-                        _updateBudgetItem(budgetItem);
+                        _updateBudgetItem(context, budgetItem);
                       },
                       icon: Icon(Icons.add),
                       label: Text('Update'))
@@ -214,10 +210,13 @@ class _BudgetItemsScreenState extends State<BudgetItemsScreen> {
         Provider.of<Settings>(context, listen: true).currencySymbol;
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: Text('Your Budgets'),
         actions: <Widget>[
-          IconButton(onPressed: _startAddNewExpenses, icon: Icon(Icons.add))
+          IconButton(
+              onPressed: () => _startAddNewExpenses(context),
+              icon: Icon(Icons.add))
         ],
       ),
       body: FutureBuilder(
@@ -239,136 +238,121 @@ class _BudgetItemsScreenState extends State<BudgetItemsScreen> {
 
                           return Column(
                             children: [
-                              Expanded(
-                                child: ListView.builder(
-                                  itemCount: budgetItems.items.length,
-                                  itemBuilder: (ctx, i) => Slidable(
-                                    actionPane: SlidableDrawerActionPane(),
-                                    actionExtentRatio: 0.25,
-                                    child: GestureDetector(
-                                      onDoubleTap: () {
-                                        _startEditBudgetItem(
-                                            budgetItems.items[i]);
-                                      },
-                                      child: ListTile(
-                                        leading: Text(
-                                          budgetItems.items[i].name,
-                                          style:
-                                              budgetItems.items[i].isPaid == 1
-                                                  ? new TextStyle(
-                                                      color: budgetItems
-                                                                  .items[i]
-                                                                  .entryType ==
-                                                              EntryType.expenses
-                                                                  .toString()
-                                                          ? Colors.red
-                                                          : Colors.green,
-                                                      decoration: TextDecoration
-                                                          .lineThrough,
-                                                    )
-                                                  : new TextStyle(
-                                                      color: budgetItems
-                                                                  .items[i]
-                                                                  .entryType ==
-                                                              EntryType.expenses
-                                                                  .toString()
-                                                          ? Colors.red
-                                                          : Colors.green,
-                                                    ),
-                                        ),
-                                        title: Text(
-                                            '$_currencySymbol ${budgetItems.items[i].amount.toString()}'),
-                                        subtitle: (budgetItems
-                                                    .items[i].dueDate >
-                                                0)
-                                            ? Text(DateTime
-                                                    .fromMillisecondsSinceEpoch(
-                                                        budgetItems
-                                                            .items[i].dueDate)
-                                                .toString())
-                                            : null,
-                                        trailing: Column(
-                                          children: <Widget>[
-                                            Text(
-                                                '$_currencySymbol ${budgetItems.items[i].totalAmount.toString()}'),
-                                            Text(
-                                                '$_currencySymbol ${budgetItems.items[i].runningBalance.toString()}'),
-                                          ],
-                                        ),
-                                        onTap: null,
+                              ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: budgetItems.items.length,
+                                itemBuilder: (ctx, i) => Slidable(
+                                  actionPane: SlidableDrawerActionPane(),
+                                  actionExtentRatio: 0.25,
+                                  child: GestureDetector(
+                                    onDoubleTap: () {
+                                      _startEditBudgetItem(
+                                          context, budgetItems.items[i]);
+                                    },
+                                    child: ListTile(
+                                      leading: Text(
+                                        budgetItems.items[i].name,
+                                        style: budgetItems.items[i].isPaid == 1
+                                            ? new TextStyle(
+                                                color: budgetItems.items[i]
+                                                            .entryType ==
+                                                        EntryType.expenses
+                                                            .toString()
+                                                    ? Colors.red
+                                                    : Colors.green,
+                                                decoration:
+                                                    TextDecoration.lineThrough,
+                                              )
+                                            : new TextStyle(
+                                                color: budgetItems.items[i]
+                                                            .entryType ==
+                                                        EntryType.expenses
+                                                            .toString()
+                                                    ? Colors.red
+                                                    : Colors.green,
+                                              ),
                                       ),
+                                      title: Text(
+                                          '$_currencySymbol ${budgetItems.items[i].amount.toString()}'),
+                                      subtitle: (budgetItems.items[i].dueDate >
+                                              0)
+                                          ? Text(DateTime
+                                                  .fromMillisecondsSinceEpoch(
+                                                      budgetItems
+                                                          .items[i].dueDate)
+                                              .toString())
+                                          : null,
+                                      trailing: Column(
+                                        children: <Widget>[
+                                          Text(
+                                              '$_currencySymbol ${budgetItems.items[i].totalAmount.toString()}'),
+                                          Text(
+                                              '$_currencySymbol ${budgetItems.items[i].runningBalance.toString()}'),
+                                        ],
+                                      ),
+                                      onTap: null,
                                     ),
-                                    secondaryActions: <Widget>[
-                                      IconSlideAction(
-                                        caption: 'Due',
-                                        color: Colors.orange,
-                                        icon: Icons.calendar_today_outlined,
-                                        onTap: () => {
-                                          _showDatePicker(
-                                              context, budgetItems.items[i].id)
-                                        },
-                                      ),
-                                      if (EntryType.expenses.toString() ==
-                                          budgetItems.items[i].entryType)
-                                        IconSlideAction(
-                                          caption: 'Paid',
-                                          color: Colors.orange,
-                                          icon: Icons.check,
-                                          onTap: () => {
-                                            _setPaid(
-                                                context,
-                                                budgetItems.items[i].id,
-                                                budgetItems.items[i].isPaid)
-                                          },
-                                        ),
-                                      IconSlideAction(
-                                        caption: 'Edit',
-                                        color: Colors.blue,
-                                        icon: Icons.edit_outlined,
-                                        onTap: () => {
-                                          _startEditBudgetItem(
-                                              budgetItems.items[i])
-                                        },
-                                      ),
-                                      IconSlideAction(
-                                        caption: 'Delete',
-                                        color: Colors.red,
-                                        icon: Icons.delete,
-                                        onTap: () async {
-                                          if (await confirm(
-                                            context,
-                                            title: Text('Confirm'),
-                                            content: Text(
-                                                'Would you like to remove?'),
-                                            textOK: Text('Yes'),
-                                            textCancel: Text('No'),
-                                          )) {
-                                            return _deleteBudgetItem(context,
-                                                budgetItems.items[i].id);
-                                          }
-                                          return;
-                                        },
-                                      ),
-                                    ],
                                   ),
+                                  secondaryActions: <Widget>[
+                                    IconSlideAction(
+                                      caption: 'Due',
+                                      color: Colors.orange,
+                                      icon: Icons.calendar_today_outlined,
+                                      onTap: () => {
+                                        _showDatePicker(
+                                            context, budgetItems.items[i].id)
+                                      },
+                                    ),
+                                    if (EntryType.expenses.toString() ==
+                                        budgetItems.items[i].entryType)
+                                      IconSlideAction(
+                                        caption: 'Paid',
+                                        color: Colors.orange,
+                                        icon: Icons.check,
+                                        onTap: () => {
+                                          _setPaid(
+                                              context,
+                                              budgetItems.items[i].id,
+                                              budgetItems.items[i].isPaid)
+                                        },
+                                      ),
+                                    IconSlideAction(
+                                      caption: 'Edit',
+                                      color: Colors.blue,
+                                      icon: Icons.edit_outlined,
+                                      onTap: () => {
+                                        _startEditBudgetItem(
+                                            context, budgetItems.items[i])
+                                      },
+                                    ),
+                                    IconSlideAction(
+                                      caption: 'Delete',
+                                      color: Colors.red,
+                                      icon: Icons.delete,
+                                      onTap: () async {
+                                        if (await confirm(
+                                          context,
+                                          title: Text('Confirm'),
+                                          content:
+                                              Text('Would you like to remove?'),
+                                          textOK: Text('Yes'),
+                                          textCancel: Text('No'),
+                                        )) {
+                                          return _deleteBudgetItem(
+                                              context, budgetItems.items[i].id);
+                                        }
+                                        return;
+                                      },
+                                    ),
+                                  ],
                                 ),
                               ),
-                              BudgetSummary()
+                              AddNewBudgetItemForm(budgetId: budgetId),
                             ],
                           );
                         }),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ElevatedButton(
-                          onPressed: _startAddNewBudget,
-                          child: Text('Add Budget')),
-                      ElevatedButton(
-                          onPressed: _startAddNewExpenses,
-                          child: Text('Add Expenses')),
-                    ],
-                  )
+                  Container(child: BudgetSummary())
                 ],
               ),
       ),

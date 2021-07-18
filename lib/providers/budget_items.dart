@@ -175,4 +175,26 @@ class BudgetItems with ChangeNotifier {
 
     notifyListeners();
   }
+
+  Future<double> getTotalAmountByBudgetId(String budgetId) async {
+    final dataList = await DBHelper.getBudgetItemsByBudgetId(budgetId);
+    double runningBalance = 0;
+
+    dataList.forEach((element) {
+      runningBalance = element['entryType'] == EntryType.expenses
+          ? runningBalance - element['totalAmount'].toDouble()
+          : runningBalance + element['totalAmount'].toDouble();
+    });
+
+    return runningBalance;
+
+    //      dataList..reduce((value, element){
+    //   return {
+    //     // sum the population here
+    //     "population": value["population"] + element["population"],
+    //     // sum the area here
+    //     "area": value["area"] + element["area"],
+    //   };
+    // });
+  }
 }

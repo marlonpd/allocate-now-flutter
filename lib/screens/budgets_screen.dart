@@ -1,4 +1,5 @@
 import 'package:allocate_now/models/budget.dart';
+import 'package:allocate_now/widgets/add_new_budget_form.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -13,37 +14,21 @@ import '../screens/settings_screen.dart';
 import '../helpers/constants.dart';
 import 'dart:convert';
 
-class BudgetsScreen extends StatelessWidget {
+class BudgetsScreen extends StatefulWidget {
+  @override
+  _BudgetsScreenState createState() => _BudgetsScreenState();
+}
+
+class _BudgetsScreenState extends State<BudgetsScreen> {
   final _nameController = TextEditingController();
+
   final _initialBudgetController = TextEditingController();
+
   final _editNameController = TextEditingController();
 
-  void _saveBudget(ctx) {
-    if (_nameController.text.isEmpty) return;
+  bool isAddNewBudget = false;
 
-    Provider.of<Budgets>(ctx, listen: false).addBudget(_nameController.text);
-    final lastAddedBudgetId =
-        Provider.of<Budgets>(ctx, listen: false).lastAddedBudgetId;
-    _saveInitialBudgetItem(
-        ctx, lastAddedBudgetId, double.parse(_initialBudgetController.text));
-    _nameController.text = '';
-    Navigator.of(ctx).pop();
-    Navigator.of(ctx).pushNamed(
-      BudgetItemsScreen.routeName,
-      arguments: lastAddedBudgetId,
-    );
-  }
-
-  void _saveInitialBudgetItem(
-      BuildContext context, String budgetId, double initialBudget) {
-    Provider.of<BudgetItems>(context, listen: false).addBudgetItem(
-        budgetId,
-        'Initial Budget',
-        EntryType.income.toString(),
-        1,
-        initialBudget,
-        initialBudget);
-  }
+  int indexToEdit = -1;
 
   void _updateBudget(ctx, String budgetId) {
     if (_nameController.text.isEmpty) return;
@@ -77,8 +62,8 @@ class BudgetsScreen extends StatelessWidget {
                     decoration: InputDecoration(labelText: 'Initial Budget'),
                     controller: _initialBudgetController,
                   ),
-                  RaisedButton.icon(
-                      onPressed: () => _saveBudget(ctx),
+                  ElevatedButton.icon(
+                      onPressed: () {},
                       icon: Icon(Icons.add),
                       label: Text('Add Budget'))
                 ],
@@ -108,7 +93,7 @@ class BudgetsScreen extends StatelessWidget {
                     decoration: InputDecoration(labelText: 'Initial Budget'),
                     controller: _initialBudgetController,
                   ),
-                  RaisedButton.icon(
+                  ElevatedButton.icon(
                       onPressed: () => _updateBudget(ctx, budget.id),
                       icon: Icon(Icons.update),
                       label: Text('Upadate'))
@@ -134,6 +119,7 @@ class BudgetsScreen extends StatelessWidget {
     // print(json.encode(_settings));
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: Text('Your Budgets'),
         leading: GestureDetector(
@@ -154,82 +140,108 @@ class BudgetsScreen extends StatelessWidget {
               icon: Icon(Icons.add))
         ],
       ),
-      body: FutureBuilder(
-        future:
-            Provider.of<Budgets>(context, listen: false).fetchAndSetBudgets(),
-        builder: (ctx, snapshot) => snapshot.connectionState ==
-                ConnectionState.waiting
-            ? Center(
-                child: CircularProgressIndicator(),
-              )
-            : Consumer<Budgets>(
-                child: Center(child: Text('No budget created')),
-                builder: (ctxx, budgets, _child) {
-                  if (budgets.items.length <= 0) return _child as Widget;
+      body: SingleChildScrollView(
+        child: FutureBuilder(
+          future:
+              Provider.of<Budgets>(context, listen: false).fetchAndSetBudgets(),
+          builder: (ctx, snapshot) =>
+              snapshot.connectionState == ConnectionState.waiting
+                  ? Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : Consumer<Budgets>(
+                      child: Center(child: Text('No budget created')),
+                      builder: (ctxx, budgets, _child) {
+                        if (budgets.items.length <= 0) return _child as Widget;
 
-                  return Column(
-                    children: [
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: budgets.items.length,
-                          itemBuilder: (ctx, i) => Slidable(
-                            actionPane: SlidableDrawerActionPane(),
-                            actionExtentRatio: 0.25,
-                            child: Container(
-                              color: Colors.white,
-                              child: GestureDetector(
-                                  child: ListTile(
-                                    title: Text(
-                                      budgets.items[i].name,
-                                    ),
-                                    subtitle: Text(budgets.items[i].id),
-                                  ),
-                                  onDoubleTap: () {
-                                    startEditBudget(context, budgets.items[i]);
-                                  },
-                                  onTap: () {
-                                    Navigator.of(context).pushNamed(
-                                      BudgetItemsScreen.routeName,
-                                      arguments: budgets.items[i].id,
-                                    );
-                                  }),
+                        return Column(
+                          children: [
+                            ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: budgets.items.length,
+                              itemBuilder: (ctx, i) => (i == indexToEdit)
+                                  ? _editBudgetnameField()
+                                  : _budgetItem(ctx, i, budgets.items[i]),
                             ),
-                            secondaryActions: <Widget>[
-                              IconSlideAction(
-                                caption: 'Clone',
-                                color: Colors.orange,
-                                icon: Icons.copy_outlined,
-                                onTap: () => {
-                                  _cloneBudget(context, budgets.items[i].id)
-                                },
-                              ),
-                              IconSlideAction(
-                                  caption: 'Delete',
-                                  color: Colors.red,
-                                  icon: Icons.delete,
-                                  onTap: () async {
-                                    if (await confirm(
-                                      context,
-                                      title: Text('Confirm'),
-                                      content:
-                                          Text('Would you like to remove?'),
-                                      textOK: Text('Yes'),
-                                      textCancel: Text('No'),
-                                    )) {
-                                      return _deleteBudget(
-                                          context, budgets.items[i].id);
-                                    }
-                                    return;
-                                  }),
-                            ],
-                          ),
-                        ),
-                      ),
-                      ElevatedButton(onPressed: () {}, child: Text('Add new'))
-                    ],
-                  );
-                }),
+                            AddNewBudgetForm(),
+                          ],
+                        );
+                      }),
+        ),
       ),
+    );
+  }
+
+  Widget _editBudgetnameField() {
+    return Container(
+      child: Focus(
+        child: TextField(
+          controller: _editNameController,
+        ),
+        onFocusChange: (hasFocus) {
+          if (hasFocus) {
+            print('enter');
+          } else {
+            setState(() {
+              indexToEdit = -1;
+            });
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _budgetItem(BuildContext context, int index, Budget budget) {
+    return Slidable(
+      actionPane: SlidableDrawerActionPane(),
+      actionExtentRatio: 0.25,
+      child: Container(
+        color: Colors.white,
+        child: GestureDetector(
+            child: ListTile(
+              title: Text(
+                budget.name,
+              ),
+              subtitle: Text(budget.id),
+            ),
+            onDoubleTap: () {
+              setState(() {
+                indexToEdit = index;
+                _editNameController.text = budget.name;
+              });
+              //startEditBudget(context, budget);
+            },
+            onTap: () {
+              Navigator.of(context).pushNamed(
+                BudgetItemsScreen.routeName,
+                arguments: budget.id,
+              );
+            }),
+      ),
+      secondaryActions: <Widget>[
+        IconSlideAction(
+          caption: 'Clone',
+          color: Colors.orange,
+          icon: Icons.copy_outlined,
+          onTap: () => {_cloneBudget(context, budget.id)},
+        ),
+        IconSlideAction(
+            caption: 'Delete',
+            color: Colors.red,
+            icon: Icons.delete,
+            onTap: () async {
+              if (await confirm(
+                context,
+                title: Text('Confirm'),
+                content: Text('Would you like to remove?'),
+                textOK: Text('Yes'),
+                textCancel: Text('No'),
+              )) {
+                return _deleteBudget(context, budget.id);
+              }
+              return;
+            }),
+      ],
     );
   }
 }
