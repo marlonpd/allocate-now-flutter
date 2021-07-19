@@ -131,6 +131,12 @@ class DBHelper {
     return 'Database Loaded';
   }
 
+  static Future<List<Map<String, dynamic>>> getBudgetWithItems() async {
+    final db = await DBHelper.database();
+    return db.rawQuery(
+        'SELECT * FROM budgets b inner join budgetItems bi on b.id = bi.budgetId');
+  }
+
   static Future<void> insert(String table, Map<String, dynamic> data) async {
     print('inserting...');
     print(data);

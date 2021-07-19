@@ -203,6 +203,9 @@ class _BudgetsScreenState extends State<BudgetsScreen> {
                 budget.name,
               ),
               subtitle: Text(budget.id),
+              trailing: Text(
+                budget.totalAmount.toString(),
+              ),
             ),
             onDoubleTap: () {
               setState(() {

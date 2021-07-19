@@ -1,5 +1,7 @@
+import 'package:allocate_now/helpers/constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
+import 'dart:developer';
 
 import '../helpers/db_helper.dart';
 import '../models/budget.dart';
@@ -21,7 +23,7 @@ class Budgets with ChangeNotifier {
     var uuid = Uuid();
     var createdAt = DateTime.now();
     _lastAddedBudgetId = uuid.v1();
-    final newBudget = Budget(_lastAddedBudgetId, name, 0, createdAt);
+    final newBudget = Budget(_lastAddedBudgetId, name, 0, createdAt, 0);
 
     _items.add(newBudget);
     notifyListeners();
@@ -72,16 +74,47 @@ class Budgets with ChangeNotifier {
   }
 
   Future<void> fetchAndSetBudgets() async {
-    final dataList = await DBHelper.getData('budgets');
+    try {
+      // final dataList = await DBHelper.getData('budgets');
+      final dataList = await DBHelper.getBudgetWithItems();
 
-    _items = dataList
-        .map((item) => Budget(item['id'], item['name'], item['amount'],
-            DateTime.parse(item['createdAt'])))
-        .toList();
+      // final _items1 = dataList.map((item) {
+      //   log(item.toString());
+      //     final double totalAmount = item['entryType'] == EntryType.expenses
+
+      //     : totAmount + item['totalAmount'].toDouble();
+      //   return Budget(item['id'], item['name'], item['amount'],DateTime.parse(item['createdAt']), totalAmount);;
+      // }).toList();
+
+      // log('Im here');
+      _items = await Future.wait(dataList.map((item) async {
+        final double totalAmount = await getTotalAmountByBudgetId(item['id']);
+
+        return Budget(item['id'], item['name'], item['amount'],
+            DateTime.parse(item['createdAt']), totalAmount);
+      }).toList());
+    } catch (e) {
+      print('watch the pak');
+      print(e);
+    }
     notifyListeners();
   }
 
   Budget findById(String id) {
     return _items.firstWhere((budget) => budget.id == id);
+  }
+
+  Future<double> getTotalAmountByBudgetId(String budgetId) async {
+    final dataList = await DBHelper.getBudgetItemsByBudgetId(budgetId);
+    double totAmount = 0;
+    log('getTotalAmountByBudgetId');
+    log(dataList.toString());
+    dataList.forEach((element) {
+      totAmount = element['entryType'] == EntryType.expenses
+          ? totAmount - element['totalAmount'].toDouble()
+          : totAmount + element['totalAmount'].toDouble();
+    });
+
+    return totAmount;
   }
 }
