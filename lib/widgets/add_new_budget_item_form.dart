@@ -67,7 +67,7 @@ class _AddNewBudgetItemFormState extends State<AddNewBudgetItemForm> {
         : double.parse(_unitCountController.text);
     final double _amount = double.parse(_amountController.text);
     final double _totalAmount = _unitCount * _amount;
-
+    widget.setIsAddNewBudgetItemFalse();
     Provider.of<BudgetItems>(context, listen: false).addBudgetItem(
         widget.budgetId,
         _nameController.text,

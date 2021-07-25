@@ -30,7 +30,7 @@ class _AddNewExpensesItemFormState extends State<AddNewExpensesItemForm> {
         : double.parse(_unitCountController.text);
     final double _amount = double.parse(_amountController.text);
     final double _totalAmount = _unitCount * _amount;
-
+    widget.setIsAddNewExpensesFalse();
     Provider.of<BudgetItems>(context, listen: false).addBudgetItem(
         widget.budgetId,
         _nameController.text,
@@ -39,7 +39,7 @@ class _AddNewExpensesItemFormState extends State<AddNewExpensesItemForm> {
         _amount,
         _totalAmount);
 
-    Navigator.of(context).pop();
+    //Navigator.of(context).pop();
   }
 
   @override
