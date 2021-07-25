@@ -1,5 +1,6 @@
 import 'package:allocate_now/models/budget_item.dart';
 import 'package:allocate_now/widgets/add_new_budget_item_form.dart';
+import 'package:allocate_now/widgets/add_new_expenses_item_form.dart';
 import 'package:allocate_now/widgets/budget_summary.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -11,14 +12,39 @@ import '../providers/budget_items.dart';
 import '../providers/settings.dart';
 import '../helpers/constants.dart';
 
-class BudgetItemsScreen extends StatelessWidget {
+class BudgetItemsScreen extends StatefulWidget {
   static const routeName = '/budget-item';
 
+  @override
+  _BudgetItemsScreenState createState() => _BudgetItemsScreenState();
+}
+
+class _BudgetItemsScreenState extends State<BudgetItemsScreen> {
   final _nameController = TextEditingController();
+
   final _unitCountController = TextEditingController();
+
   final _amountController = TextEditingController();
+
   late final DateTime _dateTime;
+
   var budgetId = '';
+
+  bool isAddNewBudget = false;
+
+  bool isAddNewExpenses = false;
+
+  void setIsAddNewBudgetFalse() {
+    setState(() {
+      isAddNewBudget = false;
+    });
+  }
+
+  void setIsAddNewExpensesFalse() {
+    setState(() {
+      isAddNewExpenses = false;
+    });
+  }
 
   void _saveBudgetItem(BuildContext context, EntryType etype) {
     if (_nameController.text.isEmpty || _amountController.text.isEmpty) return;
@@ -130,7 +156,7 @@ class BudgetItemsScreen extends StatelessWidget {
                     decoration: InputDecoration(labelText: 'Amount'),
                     controller: _amountController,
                   ),
-                  RaisedButton.icon(
+                  ElevatedButton.icon(
                       onPressed: () {
                         _saveBudgetItem(context, EntryType.income);
                       },
@@ -222,140 +248,154 @@ class BudgetItemsScreen extends StatelessWidget {
       body: FutureBuilder(
         future: Provider.of<BudgetItems>(context, listen: false)
             .fetchAndSetBudgetItemsByBudgetId(budgetId),
-        builder: (ctx, snapshot) => snapshot.connectionState ==
-                ConnectionState.waiting
-            ? Center(
-                child: CircularProgressIndicator(),
-              )
-            : Column(
-                children: [
-                  Expanded(
-                    child: Consumer<BudgetItems>(
-                        child: Center(child: Text('No budget created')),
-                        builder: (ctxx, budgetItems, _child) {
-                          if (budgetItems.items.length <= 0)
-                            return _child as Widget;
+        builder: (ctx, snapshot) =>
+            snapshot.connectionState == ConnectionState.waiting
+                ? Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : Column(
+                    children: [
+                      Expanded(
+                        child: Consumer<BudgetItems>(
+                            child: Center(child: Text('No budget created')),
+                            builder: (ctxx, budgetItems, _child) {
+                              if (budgetItems.items.length <= 0)
+                                return _child as Widget;
 
-                          return Column(
-                            children: [
-                              ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: budgetItems.items.length,
-                                itemBuilder: (ctx, i) => Slidable(
-                                  actionPane: SlidableDrawerActionPane(),
-                                  actionExtentRatio: 0.25,
-                                  child: GestureDetector(
-                                    onDoubleTap: () {
-                                      _startEditBudgetItem(
-                                          context, budgetItems.items[i]);
-                                    },
-                                    child: ListTile(
-                                      leading: Text(
-                                        budgetItems.items[i].name,
-                                        style: budgetItems.items[i].isPaid == 1
-                                            ? new TextStyle(
-                                                color: budgetItems.items[i]
-                                                            .entryType ==
-                                                        EntryType.expenses
-                                                            .toString()
-                                                    ? Colors.red
-                                                    : Colors.green,
-                                                decoration:
-                                                    TextDecoration.lineThrough,
-                                              )
-                                            : new TextStyle(
-                                                color: budgetItems.items[i]
-                                                            .entryType ==
-                                                        EntryType.expenses
-                                                            .toString()
-                                                    ? Colors.red
-                                                    : Colors.green,
-                                              ),
-                                      ),
-                                      title: Text(
-                                          '$_currencySymbol ${budgetItems.items[i].amount.toString()}'),
-                                      subtitle: (budgetItems.items[i].dueDate >
-                                              0)
-                                          ? Text(DateTime
-                                                  .fromMillisecondsSinceEpoch(
-                                                      budgetItems
-                                                          .items[i].dueDate)
-                                              .toString())
-                                          : null,
-                                      trailing: Column(
-                                        children: <Widget>[
-                                          Text(
-                                              '$_currencySymbol ${budgetItems.items[i].totalAmount.toString()}'),
-                                          Text(
-                                              '$_currencySymbol ${budgetItems.items[i].runningBalance.toString()}'),
-                                        ],
-                                      ),
-                                      onTap: null,
-                                    ),
+                              return Column(
+                                children: [
+                                  ListView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: budgetItems.items.length,
+                                    itemBuilder: (ctx, i) => _budgetItem(
+                                        context,
+                                        i,
+                                        budgetItems.items[i],
+                                        _currencySymbol),
                                   ),
-                                  secondaryActions: <Widget>[
-                                    IconSlideAction(
-                                      caption: 'Due',
-                                      color: Colors.orange,
-                                      icon: Icons.calendar_today_outlined,
-                                      onTap: () => {
-                                        _showDatePicker(
-                                            context, budgetItems.items[i].id)
-                                      },
+                                  if (!isAddNewExpenses && !isAddNewBudget)
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: <Widget>[
+                                        ElevatedButton.icon(
+                                            onPressed: () {
+                                              setState(() {
+                                                isAddNewBudget = true;
+                                              });
+                                            },
+                                            icon: Icon(Icons.add),
+                                            label: Text('Add Budget')),
+                                        ElevatedButton.icon(
+                                            onPressed: () {
+                                              setState(() {
+                                                isAddNewExpenses = true;
+                                              });
+                                            },
+                                            icon: Icon(Icons.add),
+                                            label: Text('Add Expenses'))
+                                      ],
                                     ),
-                                    if (EntryType.expenses.toString() ==
-                                        budgetItems.items[i].entryType)
-                                      IconSlideAction(
-                                        caption: 'Paid',
-                                        color: Colors.orange,
-                                        icon: Icons.check,
-                                        onTap: () => {
-                                          _setPaid(
-                                              context,
-                                              budgetItems.items[i].id,
-                                              budgetItems.items[i].isPaid)
-                                        },
-                                      ),
-                                    IconSlideAction(
-                                      caption: 'Edit',
-                                      color: Colors.blue,
-                                      icon: Icons.edit_outlined,
-                                      onTap: () => {
-                                        _startEditBudgetItem(
-                                            context, budgetItems.items[i])
-                                      },
+                                  if (isAddNewExpenses)
+                                    AddNewExpensesItemForm(
+                                      budgetId: budgetId,
+                                      setIsAddNewExpensesFalse:
+                                          setIsAddNewExpensesFalse,
                                     ),
-                                    IconSlideAction(
-                                      caption: 'Delete',
-                                      color: Colors.red,
-                                      icon: Icons.delete,
-                                      onTap: () async {
-                                        if (await confirm(
-                                          context,
-                                          title: Text('Confirm'),
-                                          content:
-                                              Text('Would you like to remove?'),
-                                          textOK: Text('Yes'),
-                                          textCancel: Text('No'),
-                                        )) {
-                                          return _deleteBudgetItem(
-                                              context, budgetItems.items[i].id);
-                                        }
-                                        return;
-                                      },
+                                  if (isAddNewBudget)
+                                    AddNewBudgetItemForm(
+                                      budgetId: budgetId,
+                                      setIsAddNewBudgetItemFalse:
+                                          setIsAddNewBudgetFalse,
                                     ),
-                                  ],
-                                ),
-                              ),
-                              AddNewBudgetItemForm(budgetId: budgetId),
-                            ],
-                          );
-                        }),
+                                ],
+                              );
+                            }),
+                      ),
+                      Container(child: BudgetSummary())
+                    ],
                   ),
-                  Container(child: BudgetSummary())
-                ],
-              ),
       ),
+    );
+  }
+
+  Widget _budgetItem(BuildContext context, int index, BudgetItem budgetItem,
+      String _currencySymbol) {
+    return Slidable(
+      actionPane: SlidableDrawerActionPane(),
+      actionExtentRatio: 0.25,
+      child: GestureDetector(
+        onDoubleTap: () {
+          _startEditBudgetItem(context, budgetItem);
+        },
+        child: ListTile(
+          leading: Text(
+            budgetItem.name,
+            style: budgetItem.isPaid == 1
+                ? new TextStyle(
+                    color: budgetItem.entryType == EntryType.expenses.toString()
+                        ? Colors.red
+                        : Colors.green,
+                    decoration: TextDecoration.lineThrough,
+                  )
+                : new TextStyle(
+                    color: budgetItem.entryType == EntryType.expenses.toString()
+                        ? Colors.red
+                        : Colors.green,
+                  ),
+          ),
+          title: Text('$_currencySymbol ${budgetItem.amount.toString()}'),
+          subtitle: (budgetItem.dueDate > 0)
+              ? Text(DateTime.fromMillisecondsSinceEpoch(budgetItem.dueDate)
+                  .toString())
+              : null,
+          trailing: Column(
+            children: <Widget>[
+              Text('$_currencySymbol ${budgetItem.totalAmount.toString()}'),
+              Text('$_currencySymbol ${budgetItem.runningBalance.toString()}'),
+            ],
+          ),
+          onTap: null,
+        ),
+      ),
+      secondaryActions: <Widget>[
+        IconSlideAction(
+          caption: 'Due',
+          color: Colors.orange,
+          icon: Icons.calendar_today_outlined,
+          onTap: () => {_showDatePicker(context, budgetItem.id)},
+        ),
+        if (EntryType.expenses.toString() == budgetItem.entryType)
+          IconSlideAction(
+            caption: 'Paid',
+            color: Colors.orange,
+            icon: Icons.check,
+            onTap: () => {_setPaid(context, budgetItem.id, budgetItem.isPaid)},
+          ),
+        IconSlideAction(
+          caption: 'Edit',
+          color: Colors.blue,
+          icon: Icons.edit_outlined,
+          onTap: () => {_startEditBudgetItem(context, budgetItem)},
+        ),
+        IconSlideAction(
+          caption: 'Delete',
+          color: Colors.red,
+          icon: Icons.delete,
+          onTap: () async {
+            if (await confirm(
+              context,
+              title: Text('Confirm'),
+              content: Text('Would you like to remove?'),
+              textOK: Text('Yes'),
+              textCancel: Text('No'),
+            )) {
+              return _deleteBudgetItem(context, budgetItem.id);
+            }
+            return;
+          },
+        ),
+      ],
     );
   }
 }

@@ -1,63 +1,26 @@
 import 'package:allocate_now/helpers/constants.dart';
-import 'package:allocate_now/providers/budget_items.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class AddNewBudgetItemForm extends StatefulWidget {
+import 'package:allocate_now/providers/budget_items.dart';
+
+class AddNewExpensesItemForm extends StatefulWidget {
   final String budgetId;
-  final Function setIsAddNewBudgetItemFalse;
-  const AddNewBudgetItemForm(
+  final Function setIsAddNewExpensesFalse;
+  const AddNewExpensesItemForm(
       {Key? key,
       required this.budgetId,
-      required this.setIsAddNewBudgetItemFalse})
+      required this.setIsAddNewExpensesFalse})
       : super(key: key);
 
   @override
-  _AddNewBudgetItemFormState createState() => _AddNewBudgetItemFormState();
+  _AddNewExpensesItemFormState createState() => _AddNewExpensesItemFormState();
 }
 
-class _AddNewBudgetItemFormState extends State<AddNewBudgetItemForm> {
+class _AddNewExpensesItemFormState extends State<AddNewExpensesItemForm> {
   final _nameController = TextEditingController();
   final _unitCountController = TextEditingController();
   final _amountController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(20.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          TextField(
-            decoration: InputDecoration(labelText: 'Name'),
-            controller: _nameController,
-          ),
-          TextField(
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(labelText: 'Amount'),
-            controller: _amountController,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              ElevatedButton.icon(
-                  onPressed: () {
-                    widget.setIsAddNewBudgetItemFalse();
-                  },
-                  icon: Icon(Icons.cancel),
-                  label: Text('Cancel')),
-              ElevatedButton.icon(
-                  onPressed: () {
-                    _saveBudgetItem(context, EntryType.income);
-                  },
-                  icon: Icon(Icons.add),
-                  label: Text('Add Expenses')),
-            ],
-          )
-        ],
-      ),
-    );
-  }
 
   void _saveBudgetItem(BuildContext context, EntryType etype) {
     if (_nameController.text.isEmpty || _amountController.text.isEmpty) return;
@@ -75,5 +38,50 @@ class _AddNewBudgetItemFormState extends State<AddNewBudgetItemForm> {
         _unitCount,
         _amount,
         _totalAmount);
+
+    Navigator.of(context).pop();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          TextField(
+            decoration: InputDecoration(labelText: 'Name'),
+            controller: _nameController,
+          ),
+          TextField(
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(labelText: 'Unit Count'),
+            controller: _unitCountController,
+          ),
+          TextField(
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(labelText: 'Amount'),
+            controller: _amountController,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton.icon(
+                  onPressed: () {
+                    widget.setIsAddNewExpensesFalse();
+                  },
+                  icon: Icon(Icons.cancel),
+                  label: Text('Cancel')),
+              ElevatedButton.icon(
+                  onPressed: () {
+                    _saveBudgetItem(context, EntryType.expenses);
+                  },
+                  icon: Icon(Icons.add),
+                  label: Text('Add Expenses')),
+            ],
+          )
+        ],
+      ),
+    );
   }
 }
