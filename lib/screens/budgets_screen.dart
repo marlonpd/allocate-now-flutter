@@ -21,13 +21,9 @@ class BudgetsScreen extends StatefulWidget {
 
 class _BudgetsScreenState extends State<BudgetsScreen> {
   final _nameController = TextEditingController();
-
   final _initialBudgetController = TextEditingController();
-
   final _editNameController = TextEditingController();
-
   bool isAddNewBudget = false;
-
   int indexToEdit = -1;
 
   void _updateBudget(ctx, String budgetId) {
@@ -111,7 +107,7 @@ class _BudgetsScreenState extends State<BudgetsScreen> {
   @override
   Widget build(BuildContext context) {
     Provider.of<Settings>(context, listen: false).fetchAndSetSettings();
-
+    print('builing---------------');
     // String _currencySymbol =
     //     Provider.of<Settings>(context, listen: false).currencySymbol;
     // final _settings = Provider.of<Settings>(context, listen: false).settings;
@@ -140,23 +136,24 @@ class _BudgetsScreenState extends State<BudgetsScreen> {
               icon: Icon(Icons.add))
         ],
       ),
-      body: SingleChildScrollView(
-        child: FutureBuilder(
-          future:
-              Provider.of<Budgets>(context, listen: false).fetchAndSetBudgets(),
-          builder: (ctx, snapshot) =>
-              snapshot.connectionState == ConnectionState.waiting
-                  ? Center(
-                      child: CircularProgressIndicator(),
-                    )
-                  : Consumer<Budgets>(
-                      child: Center(child: Text('No budget created')),
-                      builder: (ctxx, budgets, _child) {
-                        if (budgets.items.length <= 0) return _child as Widget;
+      body: FutureBuilder(
+        future:
+            Provider.of<Budgets>(context, listen: false).fetchAndSetBudgets(),
+        builder: (ctx, snapshot) =>
+            snapshot.connectionState == ConnectionState.waiting
+                ? Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : Consumer<Budgets>(
+                    child: Center(child: Text('No budget created')),
+                    builder: (ctxx, budgets, _child) {
+                      if (budgets.items.length <= 0) return _child as Widget;
 
-                        return Column(
+                      return SingleChildScrollView(
+                        child: Column(
                           children: [
                             ListView.builder(
+                              physics: const NeverScrollableScrollPhysics(),
                               shrinkWrap: true,
                               itemCount: budgets.items.length,
                               itemBuilder: (ctx, i) => (i == indexToEdit)
@@ -165,9 +162,9 @@ class _BudgetsScreenState extends State<BudgetsScreen> {
                             ),
                             AddNewBudgetForm(),
                           ],
-                        );
-                      }),
-        ),
+                        ),
+                      );
+                    }),
       ),
     );
   }
@@ -215,10 +212,14 @@ class _BudgetsScreenState extends State<BudgetsScreen> {
               //startEditBudget(context, budget);
             },
             onTap: () {
-              Navigator.of(context).pushNamed(
+              Navigator.of(context)
+                  .pushNamed(
                 BudgetItemsScreen.routeName,
                 arguments: budget.id,
-              );
+              )
+                  .then((_) {
+                setState(() {});
+              });
             }),
       ),
       secondaryActions: <Widget>[

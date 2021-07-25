@@ -30,9 +30,7 @@ class AllocateNow extends StatelessWidget {
       builder: (context, AsyncSnapshot snapshot) {
         // Show splash screen while waiting for app resources to load:
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return MultiProvider(providers: [
-            ChangeNotifierProvider<Settings>(create: (ctx) => Settings()),
-          ], child: MaterialApp(home: SplashScreen()));
+          return MaterialApp(home: SplashScreen());
         } else {
           // Loading is done, return the app:
           return MultiProvider(

@@ -36,6 +36,14 @@ class Budgets with ChangeNotifier {
     });
   }
 
+  void updateSpecificBudgetTotalAmount(String budgetId, double amount) {
+    final ndx = _items.indexWhere((item) => item.id == budgetId);
+    if (ndx >= 0) {
+      _items[ndx].totalAmount = amount;
+      notifyListeners();
+    }
+  }
+
   void updateBudget(String id, String name) {
     final ndx = _items.indexWhere((item) => item.id == id);
     _items[ndx].name = name;
@@ -75,8 +83,8 @@ class Budgets with ChangeNotifier {
 
   Future<void> fetchAndSetBudgets() async {
     try {
-      // final dataList = await DBHelper.getData('budgets');
-      final dataList = await DBHelper.getBudgetWithItems();
+      final dataList = await DBHelper.getData('budgets');
+      //final dataList = await DBHelper.getBudgetWithItems();
 
       // final _items1 = dataList.map((item) {
       //   log(item.toString());
@@ -107,8 +115,8 @@ class Budgets with ChangeNotifier {
   Future<double> getTotalAmountByBudgetId(String budgetId) async {
     final dataList = await DBHelper.getBudgetItemsByBudgetId(budgetId);
     double totAmount = 0;
-    log('getTotalAmountByBudgetId');
-    log(dataList.toString());
+    //  log('getTotalAmountByBudgetId');
+    // log(dataList.toString());
     dataList.forEach((element) {
       totAmount = element['entryType'] == EntryType.expenses
           ? totAmount - element['totalAmount'].toDouble()

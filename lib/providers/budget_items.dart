@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 import '../helpers/db_helper.dart';
 import '../models/budget_item.dart';
 import '../helpers/constants.dart';
+import 'budgets.dart';
 
 class BudgetItems with ChangeNotifier {
   List<BudgetItem> _items = [];
@@ -96,6 +97,13 @@ class BudgetItems with ChangeNotifier {
       return item;
     }).toList();
 
+    if (_items.length > 0) {
+      final budgetId = _items[0].budgetId;
+
+      (new Budgets())
+          .updateSpecificBudgetTotalAmount(budgetId, _totalBudgetAmount);
+    }
+
     _budgetOverruns = _totalBudgetAmount - _totalExpenses;
   }
 
@@ -107,7 +115,7 @@ class BudgetItems with ChangeNotifier {
 
     try {
       _items.add(newBudgetItem);
-      // calculateRunningBalance();
+      calculateRunningBalance();
       notifyListeners();
 
       await DBHelper.insert('budgetItems', {

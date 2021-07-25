@@ -30,10 +30,14 @@ class _AddNewBudgetFormState extends State<AddNewBudgetForm> {
         ctx, lastAddedBudgetId, double.parse(_initialBudgetController.text));
     _nameController.text = '';
     _initialBudgetController.text = '';
-    Navigator.of(ctx).pushNamed(
+    Navigator.of(ctx)
+        .pushNamed(
       BudgetItemsScreen.routeName,
       arguments: lastAddedBudgetId,
-    );
+    )
+        .then((_) {
+      setState(() {});
+    });
   }
 
   void _updateBudget(ctx, String budgetId) {
