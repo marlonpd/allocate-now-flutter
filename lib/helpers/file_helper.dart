@@ -35,4 +35,8 @@ class FileHelper {
 
     return File(filePath);
   }
+
+  // Future<List<String>> get getListOfLocalFile async {
+  //   file = io.Directory("$directory/resume/").listSync();
+  // }
 }
