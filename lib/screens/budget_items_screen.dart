@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:confirm_dialog/confirm_dialog.dart';
 
-import '../providers/budgets.dart';
+//import '../providers/budgets.dart';
 import '../providers/budget_items.dart';
 import '../providers/settings.dart';
 import '../helpers/constants.dart';
@@ -26,7 +26,7 @@ class _BudgetItemsScreenState extends State<BudgetItemsScreen> {
 
   final _amountController = TextEditingController();
 
-  late final DateTime _dateTime;
+  //late final DateTime _dateTime;
 
   var budgetId = '';
 
@@ -212,7 +212,7 @@ class _BudgetItemsScreenState extends State<BudgetItemsScreen> {
                     decoration: InputDecoration(labelText: 'Amount'),
                     controller: _amountController,
                   ),
-                  RaisedButton.icon(
+                  ElevatedButton.icon(
                       onPressed: () {
                         _updateBudgetItem(context, budgetItem);
                       },
@@ -229,9 +229,9 @@ class _BudgetItemsScreenState extends State<BudgetItemsScreen> {
   Widget build(BuildContext context) {
     print('Building parent');
     budgetId = ModalRoute.of(context)?.settings.arguments as String;
-    final runningBalance = 0;
-    final selectedBudget =
-        Provider.of<Budgets>(context, listen: false).findById(budgetId);
+    // final runningBalance = 0;
+    // final selectedBudget =
+    //     Provider.of<Budgets>(context, listen: false).findById(budgetId);
     final _currencySymbol =
         Provider.of<Settings>(context, listen: true).currencySymbol;
 

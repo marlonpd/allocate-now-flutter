@@ -1,7 +1,6 @@
 import 'package:sqflite/sqflite.dart' as sql;
 import 'package:path/path.dart' as path;
 import 'package:sqflite/sqlite_api.dart';
-import 'package:sqflite_migration/sqflite_migration.dart';
 
 const budgets = 'budgets';
 const budgetItems = 'budgetItems';
@@ -85,7 +84,7 @@ class DBHelper {
       batch.execute(
           'CREATE TABLE $budgetItems(id TEXT PRIMARY KEY, budgetId TEXT, name TEXT, entryType TEXT, unitCount REAL, amount REAL, totalAmount REAL, isPaid INTEGER  default 0, dueDate INTEGER default NULL)');
 
-      List<dynamic> result = await batch.commit();
+      //List<dynamic> result = await batch.commit();
     }, version: 6);
   }
 

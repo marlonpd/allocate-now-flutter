@@ -57,7 +57,7 @@ class AllocateNow extends StatelessWidget {
                 },
                 debugShowCheckedModeBanner: false,
               ));
-          ;
+        
         }
       },
     );

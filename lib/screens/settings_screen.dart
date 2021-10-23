@@ -3,7 +3,6 @@ import 'package:allocate_now/widgets/user_email_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/settings.dart';
-import '../helpers/file_helper.dart';
 
 class SettingsScreen extends StatelessWidget {
   static const routeName = '/settings';
