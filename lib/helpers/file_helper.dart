@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
 class FileHelper {
-  String appFoldername = 'back';
+ // String appFoldername = 'back';
 
   Future<String> get _localPath async {
     final directory = await getApplicationDocumentsDirectory();
@@ -36,7 +36,10 @@ class FileHelper {
     return File(filePath);
   }
 
+
+}
+
+
   // Future<List<String>> get getListOfLocalFile async {
   //   file = io.Directory("$directory/resume/").listSync();
   // }
-}
