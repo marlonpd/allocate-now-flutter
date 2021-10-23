@@ -16,7 +16,7 @@ class AddNewBudgetForm extends StatefulWidget {
 class _AddNewBudgetFormState extends State<AddNewBudgetForm> {
   final _nameController = TextEditingController();
   final _initialBudgetController = TextEditingController();
-  final _editNameController = TextEditingController();
+  //final _editNameController = TextEditingController();
 
   bool isAddNewBudget = false;
 
@@ -40,14 +40,14 @@ class _AddNewBudgetFormState extends State<AddNewBudgetForm> {
     });
   }
 
-  void _updateBudget(ctx, String budgetId) {
-    if (_nameController.text.isEmpty) return;
+  // void _updateBudget(ctx, String budgetId) {
+  //   if (_nameController.text.isEmpty) return;
 
-    Provider.of<Budgets>(ctx, listen: false)
-        .updateBudget(budgetId, _nameController.text);
-    _nameController.text = '';
-    isAddNewBudget = false;
-  }
+  //   Provider.of<Budgets>(ctx, listen: false)
+  //       .updateBudget(budgetId, _nameController.text);
+  //   _nameController.text = '';
+  //   isAddNewBudget = false;
+  // }
 
   void _saveInitialBudgetItem(
       BuildContext context, String budgetId, double initialBudget) {

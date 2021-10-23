@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/currencies.dart';
 import '../providers/settings.dart';
-import 'dart:convert';
 
 class CurrencySelection extends StatelessWidget {
   void setCurrency(BuildContext context, String settingsValue) {

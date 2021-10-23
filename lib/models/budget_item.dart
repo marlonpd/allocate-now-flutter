@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import '../helpers/constants.dart';
 
 class BudgetItem {
@@ -14,16 +13,16 @@ class BudgetItem {
   int dueDate = 0;
 
   BudgetItem(
-      @required this.id,
-      @required this.budgetId,
-      @required this.name,
-      @required this.entryType,
-      @required this.unitCount,
-      @required this.amount,
-      @required this.totalAmount,
-      @required this.runningBalance,
-      @required this.isPaid,
-      @required this.dueDate);
+      this.id,
+      this.budgetId,
+      this.name,
+      this.entryType,
+      this.unitCount,
+      this.amount,
+      this.totalAmount,
+      this.runningBalance,
+      this.isPaid,
+      this.dueDate);
 
   BudgetItem.fromMap(Map<String, dynamic?> map) {
     this.id = map['id'];
